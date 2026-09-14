@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sector-7: Orbital Colony - Prototipo</title>
+    <style>
+        body {
+            margin: 0;
+            background: #0b0f19;
+            color: #e2e8f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            background: #161e2e;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            width: 350px;
+            text-align: center;
+        }
+        h2 { margin-top: 0; color: #38bdf8; font-size: 22px; }
+        .stats {
+            margin: 15px 0;
+            font-size: 16px;
+            text-align: left;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .stat-bar {
+            margin-bottom: 8px;
+        }
+        button {
+            background: #38bdf8;
+            color: #0b0f19;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px 0;
+            width: 100%;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: #0ea5e9; color: #fff; }
+        .game-over { color: #f43f5e; font-weight: bold; font-size: 18px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+        <h2>Sector-7: Órbita</h2>
+        <p>Ciclo de Supervivencia: <span id="day">1</span></p>
+        
+        <div class="stats">
+            <div class="stat-bar">⚡ Energía: <span id="energy">100</span>%</div>
+            <div class="stat-bar">🧪 Oxígeno: <span id="oxygen">100</span>%</div>
+            <div class="stat-bar">🛡️ Escudos: <span id="shields">100</span>%</div>
+        </div>
+
+        <div id="controls">
+            <p id="dilemma" style="font-size: 14px; min-height: 40px;">Estación estable. Esperando anomalías...</p>
+            <button onclick="action('boost_energy')">Desviar a Reactores (+Energía)</button>
+            <button onclick="action('boost_oxygen')">Reciclar Hidroponía (+Oxígeno)</button>
+            <button onclick="action('boost_shields')">Calibrar Mamparos (+Escudos)</button>
+        </div>
+
+        <div id="gameoverScreen" class="game-over">
+            <p>¡Colapso de la Estación!</p>
+            <button onclick="restartGame()">Reiniciar Protocolo</button>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            day: 1,
+            energy: 80,
+            oxygen: 80,
+            shields: 80
+        };
+
+        const dilemmas = [
+            "Tormenta de radiación detectada en el sector exterior.",
+            "Fuga menor de gas en el módulo habitacional.",
+            "Fluctuación imprevista en el núcleo de plasma.",
+            "Micro-meteoritos rozando el casco de la estación."
+        ];
+
+        function updateUI() {
+            document.getElementById('day').innerText = state.day;
+            document.getElementById('energy').innerText = Math.max(0, Math.floor(state.energy));
+            document.getElementById('oxygen').innerText = Math.max(0, Math.floor(state.oxygen));
+            document.getElementById('shields').innerText = Math.max(0, Math.floor(state.shields));
+
+            if (state.energy <= 0 || state.oxygen <= 0 || state.shields <= 0) {
+                document.getElementById('controls').style.display = 'none';
+                document.getElementById('gameoverScreen').style.display = 'block';
+            }
+        }
+
+        function action(type) {
+            // Efecto de la acción elegida
+            if (type === 'boost_energy') {
+                state.energy += 25;
+                state.oxygen -= 15;
+                state.shields -= 10;
+            } else if (type === 'boost_oxygen') {
+                state.oxygen += 25;
+                state.energy -= 15;
+                state.shields -= 10;
+            } else if (type === 'boost_shields') {
+                state.shields += 25;
+                state.energy -= 10;
+                state.oxygen -= 15;
+            }
+
+            // Desgaste natural por turno
+            state.energy -= 10;
+            state.oxygen -= 10;
+            state.shields -= 10;
+            state.day++;
+
+            // Cambiar texto de dilema aleatorio
+            let randomDilemma = dilemmas[Math.floor(Math.random() * dilemmas.length)];
+            document.getElementById('dilemma').innerText = randomDilemma;
+
+            updateUI();
+        }
+
+        function restartGame() {
+            state = { day: 1, energy: 80, oxygen: 80, shields: 80 };
+            document.getElementById('controls').style.display = 'block';
+            document.getElementById('gameoverScreen').style.display = 'none';
+            document.getElementById('dilemma').innerText = "Estación estable. Esperando anomalías...";
+            updateUI();
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
